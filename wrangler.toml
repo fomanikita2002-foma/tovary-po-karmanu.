@@ -1,0 +1,15 @@
+
+
+name = "tovary-po-karmanu"
+main = "worker/index.js"
+compatibility_date = "2026-10-31"
+
+[assets]
+directory = "."
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tovary-db"
+database_id = "ВСТАВИМ_ПОЗЖЕ"
