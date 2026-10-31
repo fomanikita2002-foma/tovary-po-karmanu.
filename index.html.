@@ -1,0 +1,543 @@
+
+
+<!DOCTYPE html>
+
+<html lang="ru">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="theme-color" content="#0756c9">
+
+<title>Товары по карману</title>
+
+<style>
+
+:root {
+
+  --blue:#0756c9; --yellow:#ffdf24; --orange:#ff851b;
+
+  --green:#16883b; --ink:#172033; --light:#f2f5fa;
+
+}
+
+* { box-sizing:border-box; }
+
+body {
+
+  margin:0; background:var(--light); color:var(--ink);
+
+  font-family:Arial,Helvetica,sans-serif; font-size:18px;
+
+}
+
+header {
+
+  background:var(--blue); color:white; padding:24px 16px;
+
+  text-align:center;
+
+}
+
+header h1 { margin:0; font-size:30px; line-height:1.2; }
+
+header p { margin:10px 0 0; font-size:18px; }
+
+main { max-width:760px; margin:auto; padding:16px; }
+
+h2 { font-size:25px; margin:24px 0 14px; }
+
+.search {
+
+  width:100%; padding:17px; border:2px solid #9aa9bd;
+
+  border-radius:12px; font-size:19px; background:white;
+
+}
+
+.categories { display:flex; gap:9px; flex-wrap:wrap; margin:14px 0; }
+
+.categories button {
+
+  border:0; border-radius:10px; padding:13px 16px;
+
+  background:var(--yellow); color:#171717; font-size:17px;
+
+  font-weight:bold; cursor:pointer;
+
+}
+
+.categories button.active { background:var(--blue); color:white; }
+
+.products { display:grid; grid-template-columns:1fr; gap:16px; }
+
+.product {
+
+  background:white; border-radius:16px; overflow:hidden;
+
+  box-shadow:0 2px 9px #00000012; border:1px solid #dce2eb;
+
+}
+
+.product img { width:100%; height:210px; object-fit:cover; display:block; background:#e3eaf4; }
+
+.product-info { padding:16px; }
+
+.product h3 { font-size:23px; margin:0 0 9px; }
+
+.product p { font-size:18px; line-height:1.45; margin:8px 0; }
+
+.price { color:var(--blue); font-size:25px; font-weight:bold; margin:12px 0; }
+
+.stock { color:var(--green); font-weight:bold; }
+
+.out { color:#b42318; font-weight:bold; }
+
+button { cursor:pointer; }
+
+.add, .send {
+
+  width:100%; border:0; border-radius:12px; padding:17px;
+
+  font-size:19px; font-weight:bold; color:white; background:var(--green);
+
+}
+
+.add:disabled { background:#777; }
+
+.cart {
+
+  background:white; padding:18px; border-radius:16px;
+
+  border:2px solid var(--blue); margin-top:28px;
+
+}
+
+.cart-line {
+
+  display:flex; align-items:center; justify-content:space-between;
+
+  gap:10px; border-bottom:1px solid #ddd; padding:12px 0;
+
+}
+
+.cart-line button {
+
+  background:var(--orange); border:0; border-radius:8px;
+
+  padding:9px 13px; font-size:18px; font-weight:bold;
+
+}
+
+.total { font-size:25px; font-weight:bold; margin:18px 0; }
+
+form { display:grid; gap:12px; margin-top:18px; }
+
+form label { font-weight:bold; }
+
+form input, form textarea {
+
+  width:100%; padding:16px; border:2px solid #9aa9bd;
+
+  border-radius:10px; font-size:18px; background:white;
+
+}
+
+form textarea { min-height:90px; resize:vertical; }
+
+.send { background:var(--orange); color:#171717; }
+
+.notice {
+
+  background:#fff2b5; padding:15px; border-radius:12px;
+
+  line-height:1.45; margin-top:18px;
+
+}
+
+footer { text-align:center; padding:28px 15px; color:#45536a; }
+
+.empty { padding:20px 0; color:#596579; }
+
+@media(min-width:650px) {
+
+  .products { grid-template-columns:1fr 1fr; }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+  <h1>🛍️ Товары по карману</h1>
+
+  <p>Хорошие товары по доступным ценам</p>
+
+  <p>🚚 Доставка по Москве и Московской области</p>
+
+</header>
+
+<main>
+
+  <h2>Наш каталог</h2>
+
+  <input class="search" id="search" type="search" placeholder="🔎 Найти товар..." aria-label="Поиск товаров">
+
+  <div class="categories" id="categories">
+
+    <button class="active" data-category="Все">Все товары</button>
+
+    <button data-category="Мебель">Мебель</button>
+
+    <button data-category="Для дома">Для дома</button>
+
+    <button data-category="Другое">Другое</button>
+
+  </div>
+
+  <div class="products" id="products">
+
+    <p class="empty">Загружаем товары...</p>
+
+  </div>
+
+  <section class="cart" id="cart">
+
+    <h2>🛒 Ваша корзина</h2>
+
+    <div id="cart-items"><p class="empty">Корзина пока пустая.</p></div>
+
+    <div class="total" id="total">Итого: 0 ₽</div>
+
+    <h2>Оформить заявку</h2>
+
+    <form id="order-form">
+
+      <label for="customer-name">Ваше имя</label>
+
+      <input id="customer-name" name="name" placeholder="Как к вам обращаться?" required>
+
+      <label for="customer-phone">Телефон</label>
+
+      <input id="customer-phone" name="phone" type="tel" placeholder="+7 ___ ___-__-__" required>
+
+      <label for="customer-address">Адрес доставки</label>
+
+      <input id="customer-address" name="address" placeholder="Город, улица, дом">
+
+      <label for="customer-comment">Комментарий к заказу</label>
+
+      <textarea id="customer-comment" name="comment" placeholder="Если есть пожелания — напишите"></textarea>
+
+      <button class="send" type="submit">Отправить заявку</button>
+
+    </form>
+
+    <div class="notice">
+
+      После подключения сервера заявки будут отправляться владельцу магазина в Telegram.
+
+    </div>
+
+    <p id="message" role="status" aria-live="polite"></p>
+
+  </section>
+
+</main>
+
+<footer>«Товары по карману» · Москва и Московская область</footer>
+
+<script>
+
+const demoProducts = [
+
+  {id:1,name:"Стул для дома",category:"Мебель",price:1900,description:"Удобный стул для кухни и дома.",stock:true,image:"https://images.unsplash.com/photo-1503602642458-232111445657?w=800"},
+
+  {id:2,name:"Обеденный стол",category:"Мебель",price:5900,description:"Практичный стол для семейных обедов.",stock:true,image:"https://images.unsplash.com/photo-161 table?w=800"},
+
+  {id:3,name:"Шкаф для хранения",category:"Мебель",price:8900,description:"Вместительный шкаф для ваших вещей.",stock:true,image:"https://images.unsplash.com/photo-1595428774223-ef52624120d2?w=800"},
+
+  {id:4,name:"Полка настенная",category:"Для дома",price:990,description:"Удобная полка для хранения и декора.",stock:true,image:"https://images.unsplash.com/photo-1594620302200-9a762244a156?w=800"},
+
+  {id:5,name:"Тумба",category:"Мебель",price:3200,description:"Компактная тумба для дома.",stock:true,image:"https://images.unsplash.com/photo-1499933374294-4584851497cc?w=800"}
+
+];
+
+let products = [];
+
+let cart = [];
+
+let selectedCategory = "Все";
+
+const money = value => Number(value).toLocaleString("ru-RU") + " ₽";
+
+const safe = value => String(value ?? "").replace(/[&<>"']/g, c => ({
+
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+
+}[c]));
+
+async function loadProducts() {
+
+  try {
+
+    const response = await fetch("/api/products");
+
+    if (!response.ok) throw new Error("Нет каталога");
+
+    const data = await response.json();
+
+    products = Array.isArray(data) ? data : (data.products || []);
+
+    if (!products.length) products = demoProducts;
+
+  } catch {
+
+    products = demoProducts;
+
+  }
+
+  renderProducts();
+
+}
+
+function renderProducts() {
+
+  const query = document.getElementById("search").value.toLowerCase().trim();
+
+  const shown = products.filter(p =>
+
+    (selectedCategory === "Все" || p.category === selectedCategory) &&
+
+    (String(p.name || "").toLowerCase().includes(query) ||
+
+     String(p.description || "").toLowerCase().includes(query))
+
+  );
+
+  document.getElementById("products").innerHTML = shown.length ? shown.map(p => `
+
+    <article class="product">
+
+      <img src="${safe(p.image || "")}" alt="${safe(p.name)}"
+
+        onerror="this.style.display='none'">
+
+      <div class="product-info">
+
+        <h3>${safe(p.name)}</h3>
+
+        <p>${safe(p.description || "")}</p>
+
+        <p class="price">${money(p.price)}</p>
+
+        <p class="${p.stock === false ? "out" : "stock"}">
+
+          ${p.stock === false ? "Нет в наличии" : "Есть в наличии"}
+
+        </p>
+
+        <button class="add" data-add="${safe(p.id)}" ${p.stock === false ? "disabled" : ""}>
+
+          В корзину
+
+        </button>
+
+      </div>
+
+    </article>
+
+  `).join("") : '<p class="empty">Ничего не найдено.</p>';
+
+}
+
+function renderCart() {
+
+  const area = document.getElementById("cart-items");
+
+  if (!cart.length) {
+
+    area.innerHTML = '<p class="empty">Корзина пока пустая.</p>';
+
+  } else {
+
+    area.innerHTML = cart.map(item => `
+
+      <div class="cart-line">
+
+        <div><strong>${safe(item.name)}</strong><br>
+
+        ${money(item.price)} × ${item.qty}</div>
+
+        <div>
+
+          <button data-minus="${safe(item.id)}" aria-label="Уменьшить">−</button>
+
+          <button data-plus="${safe(item.id)}" aria-label="Увеличить">+</button>
+
+        </div>
+
+      </div>
+
+    `).join("");
+
+  }
+
+  const total = cart.reduce((sum,item) => sum + item.price * item.qty, 0);
+
+  document.getElementById("total").textContent = "Итого: " + money(total);
+
+}
+
+document.getElementById("search").addEventListener("input", renderProducts);
+
+document.getElementById("categories").addEventListener("click", event => {
+
+  const button = event.target.closest("button[data-category]");
+
+  if (!button) return;
+
+  selectedCategory = button.dataset.category;
+
+  document.querySelectorAll("#categories button").forEach(b =>
+
+    b.classList.toggle("active", b === button)
+
+  );
+
+  renderProducts();
+
+});
+
+document.getElementById("products").addEventListener("click", event => {
+
+  const button = event.target.closest("[data-add]");
+
+  if (!button) return;
+
+  const product = products.find(p => String(p.id) === button.dataset.add);
+
+  if (!product) return;
+
+  const existing = cart.find(item => String(item.id) === String(product.id));
+
+  if (existing) existing.qty++;
+
+  else cart.push({...product, qty:1});
+
+  renderCart();
+
+});
+
+document.getElementById("cart-items").addEventListener("click", event => {
+
+  const plus = event.target.closest("[data-plus]");
+
+  const minus = event.target.closest("[data-minus]");
+
+  if (plus) {
+
+    const item = cart.find(p => String(p.id) === plus.dataset.plus);
+
+    if (item) item.qty++;
+
+  }
+
+  if (minus) {
+
+    const item = cart.find(p => String(p.id) === minus.dataset.minus);
+
+    if (item) {
+
+      item.qty--;
+
+      if (item.qty <= 0) cart = cart.filter(p => p !== item);
+
+    }
+
+  }
+
+  renderCart();
+
+});
+
+document.getElementById("order-form").addEventListener("submit", async event => {
+
+  event.preventDefault();
+
+  const message = document.getElementById("message");
+
+  if (!cart.length) {
+
+    message.textContent = "Сначала добавьте товары в корзину.";
+
+    return;
+
+  }
+
+  const form = new FormData(event.target);
+
+  const order = {
+
+    name:form.get("name"),
+
+    phone:form.get("phone"),
+
+    address:form.get("address"),
+
+    comment:form.get("comment"),
+
+    items:cart.map(p => ({id:p.id,name:p.name,price:p.price,quantity:p.qty})),
+
+    total:cart.reduce((sum,p) => sum + p.price * p.qty, 0)
+
+  };
+
+  message.textContent = "Отправляем заявку...";
+
+  try {
+
+    const response = await fetch("/api/orders", {
+
+      method:"POST",
+
+      headers:{"Content-Type":"application/json"},
+
+      body:JSON.stringify(order)
+
+    });
+
+    if (!response.ok) throw new Error("Сервер ещё не подключён");
+
+    message.textContent = "Заявка отправлена! Спасибо за заказ.";
+
+    cart = [];
+
+    renderCart();
+
+    event.target.reset();
+
+  } catch {
+
+    message.textContent = "Сайт пока не подключён к серверу заказов. Заявка не отправлена. Мы подключим сервер следующим шагом.";
+
+  }
+
+});
+
+loadProducts();
+
+renderCart();
+
+</script>
+
+</body>
+
+</html>
